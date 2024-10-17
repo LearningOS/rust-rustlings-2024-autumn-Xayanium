@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,16 +68,47 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+    pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self
+    where
+        T: PartialOrd,
+    {
+        let mut result = LinkedList::<T>::new();
+
+        let mut a_curr = list_a.start;
+        let mut b_curr = list_b.start;
+
+        unsafe {
+            while a_curr.is_some() && b_curr.is_some() {
+                let a_val = &(*a_curr.unwrap().as_ptr()).val;
+                let b_val = &(*b_curr.unwrap().as_ptr()).val;
+
+                if a_val <= b_val {
+                    result.add(std::ptr::read(a_val));
+                    a_curr = (*a_curr.unwrap().as_ptr()).next;
+                } else {
+                    result.add(std::ptr::read(b_val));
+                    b_curr = (*b_curr.unwrap().as_ptr()).next;
+                }
+            }
+
+            // Append the remaining elements of list_a if any
+            while let Some(a_ptr) = a_curr {
+                let a_val = &(*a_ptr.as_ptr()).val;
+                result.add(std::ptr::read(a_val));
+                a_curr = (*a_ptr.as_ptr()).next;
+            }
+
+            // Append the remaining elements of list_b if any
+            while let Some(b_ptr) = b_curr {
+                let b_val = &(*b_ptr.as_ptr()).val;
+                result.add(std::ptr::read(b_val));
+                b_curr = (*b_ptr.as_ptr()).next;
+            }
         }
-	}
+        result
+    }
 }
+
 
 impl<T> Display for LinkedList<T>
 where
